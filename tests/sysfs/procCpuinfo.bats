@@ -90,6 +90,11 @@ function update_spec() {
   [ "$status" -eq 0 ]
   [ "$output" -eq "$hostCpus" ]
 
+  # Same content when read in small chunks.
+  sv_runc exec syscont sh -c "dd if=/proc/cpuinfo bs=16 2>/dev/null | grep -c '^processor'"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq "$hostCpus" ]
+
   sv_runc exec syscont sh -c "cat /sys/devices/system/cpu/online"
   [ "$status" -eq 0 ]
   [ "$output" == "$hostOnline" ]

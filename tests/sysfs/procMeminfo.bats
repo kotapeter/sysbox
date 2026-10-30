@@ -50,6 +50,22 @@ function update_spec() {
   [ "$output" -le 262144 ]
 }
 
+# Reads in small chunks see consistent content.
+@test "procMeminfo read() operation in small chunks" {
+  update_spec '.linux.resources.memory.limit = 268435456'
+
+  sv_runc run -d --console-socket $CONSOLE_SOCKET syscont
+  [ "$status" -eq 0 ]
+
+  # Every line must be well-formed, even though values change between reads.
+  sv_runc exec syscont sh -c "dd if=/proc/meminfo bs=16 2>/dev/null | grep -cvE '^[A-Za-z0-9_()]+: +[0-9]+( kB)?\$'"
+  [ "$output" -eq 0 ]
+
+  sv_runc exec syscont sh -c "dd if=/proc/meminfo bs=16 2>/dev/null | grep '^MemTotal:' | awk '{print \$2}'"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 262144 ]
+}
+
 # Read operation without a memory limit shows the host's memory.
 @test "procMeminfo read() operation without memory limit" {
   hostMemTotal=$(grep '^MemTotal:' /proc/meminfo | awk '{print $2}')

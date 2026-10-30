@@ -224,7 +224,8 @@ process reading them, rather than the host's:
 
 -   `/proc/cpuinfo` and `/sys/devices/system/cpu/online` list the CPUs of the
     process' effective cpuset, trimmed to its CPU quota (`cpu.max`) rounded up
-    to whole CPUs. CPUs keep their host numbering.
+    to whole CPUs. CPUs keep their host numbering, and the `siblings` and
+    `cpu cores` fields of `/proc/cpuinfo` only count the CPUs listed.
 
 This way, programs that size themselves from these files (e.g., procps' `free`,
 glibc's `sysconf(_SC_NPROCESSORS_ONLN)`, thread pools, caches or AI model
